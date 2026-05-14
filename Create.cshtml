@@ -1,0 +1,13 @@
+@model CreateAccountRequest
+
+<h1 class="h4 mb-3">Create Account</h1>
+<form method="post" class="panel form-narrow">
+    <input class="form-control" asp-for="CustomerId" placeholder="Customer ID" />
+    <select class="form-select" asp-for="AccountType" asp-items="Html.GetEnumSelectList<AccountType>()"></select>
+    <input class="form-control" asp-for="OpeningBalance" placeholder="Opening balance" />
+    <button class="btn btn-primary">Create Account</button>
+    @if (ViewBag.CreatedAccount is AccountDto account)
+    {
+        <div class="alert alert-success mt-3">Created account @account.AccountNumber with balance @account.Balance.ToString("C").</div>
+    }
+</form>

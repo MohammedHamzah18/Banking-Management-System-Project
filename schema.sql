@@ -1,0 +1,108 @@
+CREATE DATABASE BankingManagementDb;
+GO
+USE BankingManagementDb;
+GO
+
+CREATE TABLE Roles (
+    Id INT IDENTITY PRIMARY KEY,
+    Name NVARCHAR(40) NOT NULL UNIQUE,
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CreatedBy NVARCHAR(MAX) NOT NULL DEFAULT 'System',
+    UpdatedAt DATETIME2 NULL,
+    UpdatedBy NVARCHAR(MAX) NULL,
+    IsDeleted BIT NOT NULL DEFAULT 0
+);
+
+CREATE TABLE Users (
+    Id INT IDENTITY PRIMARY KEY,
+    FullName NVARCHAR(80) NOT NULL,
+    Email NVARCHAR(160) NOT NULL UNIQUE,
+    PasswordHash NVARCHAR(MAX) NOT NULL,
+    RoleId INT NOT NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CreatedBy NVARCHAR(MAX) NOT NULL DEFAULT 'System',
+    UpdatedAt DATETIME2 NULL,
+    UpdatedBy NVARCHAR(MAX) NULL,
+    IsDeleted BIT NOT NULL DEFAULT 0,
+    CONSTRAINT FK_Users_Roles FOREIGN KEY (RoleId) REFERENCES Roles(Id)
+);
+
+CREATE TABLE Customers (
+    Id INT IDENTITY PRIMARY KEY,
+    FullName NVARCHAR(120) NOT NULL,
+    Email NVARCHAR(160) NOT NULL UNIQUE,
+    PhoneNumber NVARCHAR(20) NOT NULL,
+    Address NVARCHAR(250) NOT NULL,
+    DateOfBirth DATETIME2 NOT NULL,
+    UserId INT NULL UNIQUE,
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CreatedBy NVARCHAR(MAX) NOT NULL DEFAULT 'System',
+    UpdatedAt DATETIME2 NULL,
+    UpdatedBy NVARCHAR(MAX) NULL,
+    IsDeleted BIT NOT NULL DEFAULT 0,
+    CONSTRAINT FK_Customers_Users FOREIGN KEY (UserId) REFERENCES Users(Id)
+);
+
+CREATE TABLE Accounts (
+    Id INT IDENTITY PRIMARY KEY,
+    AccountNumber NVARCHAR(20) NOT NULL UNIQUE,
+    AccountType INT NOT NULL,
+    Status INT NOT NULL,
+    Balance DECIMAL(18,2) NOT NULL CONSTRAINT CK_Accounts_Balance CHECK (Balance >= 0),
+    CustomerId INT NOT NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CreatedBy NVARCHAR(MAX) NOT NULL DEFAULT 'System',
+    UpdatedAt DATETIME2 NULL,
+    UpdatedBy NVARCHAR(MAX) NULL,
+    IsDeleted BIT NOT NULL DEFAULT 0,
+    CONSTRAINT FK_Accounts_Customers FOREIGN KEY (CustomerId) REFERENCES Customers(Id)
+);
+
+CREATE TABLE Transactions (
+    Id INT IDENTITY PRIMARY KEY,
+    AccountId INT NOT NULL,
+    DestinationAccountId INT NULL,
+    TransactionType INT NOT NULL,
+    Amount DECIMAL(18,2) NOT NULL CONSTRAINT CK_Transactions_Amount CHECK (Amount > 0),
+    BalanceAfterTransaction DECIMAL(18,2) NOT NULL,
+    ReferenceNumber NVARCHAR(40) NOT NULL UNIQUE,
+    Remarks NVARCHAR(250) NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CreatedBy NVARCHAR(MAX) NOT NULL DEFAULT 'System',
+    UpdatedAt DATETIME2 NULL,
+    UpdatedBy NVARCHAR(MAX) NULL,
+    IsDeleted BIT NOT NULL DEFAULT 0,
+    CONSTRAINT FK_Transactions_Accounts FOREIGN KEY (AccountId) REFERENCES Accounts(Id),
+    CONSTRAINT FK_Transactions_DestinationAccounts FOREIGN KEY (DestinationAccountId) REFERENCES Accounts(Id)
+);
+
+CREATE TABLE Loans (
+    Id INT IDENTITY PRIMARY KEY,
+    CustomerId INT NOT NULL,
+    LoanType NVARCHAR(60) NOT NULL,
+    PrincipalAmount DECIMAL(18,2) NOT NULL,
+    AnnualInterestRate DECIMAL(5,2) NOT NULL,
+    TenureMonths INT NOT NULL,
+    EmiAmount DECIMAL(18,2) NOT NULL,
+    Status INT NOT NULL,
+    DecisionRemarks NVARCHAR(250) NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CreatedBy NVARCHAR(MAX) NOT NULL DEFAULT 'System',
+    UpdatedAt DATETIME2 NULL,
+    UpdatedBy NVARCHAR(MAX) NULL,
+    IsDeleted BIT NOT NULL DEFAULT 0,
+    CONSTRAINT FK_Loans_Customers FOREIGN KEY (CustomerId) REFERENCES Customers(Id)
+);
+
+CREATE TABLE AuditLogs (
+    Id INT IDENTITY PRIMARY KEY,
+    EntityName NVARCHAR(80) NOT NULL,
+    Action NVARCHAR(40) NOT NULL,
+    UserName NVARCHAR(100) NULL,
+    Details NVARCHAR(MAX) NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CreatedBy NVARCHAR(MAX) NOT NULL DEFAULT 'System',
+    UpdatedAt DATETIME2 NULL,
+    UpdatedBy NVARCHAR(MAX) NULL,
+    IsDeleted BIT NOT NULL DEFAULT 0
+);

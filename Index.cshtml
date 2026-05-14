@@ -1,0 +1,29 @@
+@model PagedResult<CustomerDto>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Customers</h1>
+    <a class="btn btn-primary" asp-action="Create">Add Customer</a>
+</div>
+
+<form class="row g-2 mb-3">
+    <div class="col-md-5"><input class="form-control" name="search" value="@ViewBag.Search" placeholder="Search name, email, or phone" /></div>
+    <div class="col-auto"><button class="btn btn-outline-primary">Search</button></div>
+</form>
+
+<div class="table-responsive panel p-0">
+    <table class="table table-hover mb-0 align-middle">
+        <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Address</th><th>DOB</th></tr></thead>
+        <tbody>
+        @foreach (var customer in Model.Items)
+        {
+            <tr>
+                <td>@customer.FullName</td>
+                <td>@customer.Email</td>
+                <td>@customer.PhoneNumber</td>
+                <td>@customer.Address</td>
+                <td>@customer.DateOfBirth.ToString("dd MMM yyyy")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
